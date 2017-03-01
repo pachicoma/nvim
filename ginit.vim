@@ -1,7 +1,7 @@
 "=================================================================
 "  nvim config file for windows @pachicoma
-"  LastUpdate: 2016.10.10
+"  Update: 2017.02.19
 "=================================================================
 " フォントと文字サイズの指定
-Guifont Ricty\ Diminished:h11
+Guifont! Ricty\ Diminished:h11
 

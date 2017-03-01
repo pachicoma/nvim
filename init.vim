@@ -1,6 +1,6 @@
-"=================================================================
+﻿"=================================================================
 "  nvim config file for windows @pachicoma
-"  LastUpdate: 2016.10.10
+"  Update: 2017.02.19
 "=================================================================
 "--------------------------------------------------
 " 基本設定 
@@ -41,9 +41,9 @@ set gdefault			" 検索時は/gオプション付がデフォルト
 set ignorecase			" 大文字・小文字区別無しで検索
 set smartcase			" 検索パターンが大文字を含んでいたら区別する
 set wrapscan			" バッファ末尾まで検索したらバッファ先頭から検索する
-"if has('migemo')        " migemoがあれば有効にする
-"	set migemo
-"endif
+if has('migemo')        " migemoがあれば有効にする
+	set migemo
+endif
 
 " Grep
 "-----------------------
@@ -97,9 +97,9 @@ if has('multi_byte_ime')
   highlight Cursor guifg=NONE guibg=Gray
   highlight CursorIM guifg=NONE guibg=Purple 
   " ノーマルモード遷移時では無効にする
-  inoremap <ESC> <ESC>:set iminsert=0<CR>	
+  inoremap <ESC> <ESC>:set iminsert=0<CR>
 endif
-set imdisable
+"set imdisable
 
 " 補完メニュー
 "-----------------------
@@ -110,7 +110,7 @@ set pumheight=10
 " ファイルオープン時のアクション
 "--------------------------------------------------
 " 開いたファイルのディレクトリへ移動
-au BufEnter * execute ":lcd %:p:h"
+au BufEnter * execute 'lcd ' fnameescape(expand('%:p:h'))
 
 
 "--------------------------------------------------
@@ -123,6 +123,7 @@ let mapleader = "\<Space>"
 
 " ;でコマンド入力モードへ
 noremap ; :
+noremap : ;
 
 " qでヘルプウィンドウを閉じる
 autocmd FileType help nnoremap <buffer> q <C-w>c
@@ -138,31 +139,32 @@ nnoremap <silent> <Leader>rg :<C-u>source $MYVIMRC<CR>
 " ファイル操作
 "-----------------------
 " 保存
-noremap <C-s> <Esc>:<C-u>w<CR>	
-nnoremap <Leader>w :w<CR>
+nnoremap <C-s> <Esc>:<C-u>w<CR>	
+inoremap <C-s> <Esc>:<C-u>w<CR>	
+"nnoremap <Leader>w :w<CR>
 
 " ウィンドウ幅で折り返しON/OFF切替
 nnoremap <silent> <Leader><Leader>l :<C-u>setlocal wrap!<CR>
 
 " バッファ操作
 "-----------------------
-noremap <silent> <C-down> :bn<CR>
-noremap <silent> <C-up> :bp<CR>
-nnoremap <Leader><Leader>b :ls<CR>:buf
-nnoremap <Leader><Leader>tt :tabnew `=tempname()`<CR>
+nnoremap <silent> <Leader>j :bn<CR>
+nnoremap <silent> <Leader>k :bp<CR>
+nnoremap <silent> <Leader>b :ls<CR>:buf
 
 " ウィンドウ操作
 "-----------------------
-nnoremap <silent> <Leader><Leader>s	:split +enew<CR> 
-nnoremap <silent> <Leader><Leader>v	:vsplit +eneg<CR> 
+"nnoremap <silent> <Leader>ws	:split +enew<CR> 
+"nnoremap <silent> <Leader>wv	:vsplit +eneg<CR> 
 
 " タブ操作
 "-----------------------
-nnoremap <silent> <Leader><Leader>t	:tabnew<CR> 
+nnoremap <silent> <Leader>tn :tabnew<CR> 
+nnoremap <silent> <Leader>tt :tabnew `=tempname()`<CR>
 "map <silent> <C-t>n :tabnew<CR>
-nnoremap <silent> <C-t>w :tabclose<CR>
-nnoremap <silent> <C-h> :tabprevious<CR>
-nnoremap <silent> <C-l> :tabnext<CR>
+nnoremap <silent> <Leader>cc :tabclose<CR>
+nnoremap <silent> <Leader>h :tabprevious<CR>
+nnoremap <silent> <Leader>l :tabnext<CR>
 
 " カーソル移動
 "-----------------------
@@ -218,9 +220,9 @@ nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 " 検索ワードのハイライト表示を解除する
 noremap <silent><ESC><ESC> :noh<CR>
 " ビジュアルモードで選択中の文字を置換対象にする(*1)
-vnoremap <Leader>r y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+vnoremap <Leader>rr y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 " カーソル位置の単語を置換対象にする(*1)
-nnoremap <Leader>r yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+nnoremap <Leader>rr yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 
 " *1 ... 副作用で選択中の文字をヤンク
 
@@ -235,21 +237,25 @@ nnoremap <Leader>g yiw:<C-u>vimgrep /<C-R>"/
 
 " ctags
 "-----------------------
-nnoremap <Leader>j <C-]>
-nnoremap <Leader>jj g<C-]>
-nnoremap <Leader>k <C-t>
+"nnoremap <Leader>j <C-]>
+"nnoremap <Leader>jj g<C-]>
+"nnoremap <Leader>k <C-t>
 "nnoremap <Leader>J :<C-u>tn<CR>
 "nnoremap <Leader>K :<C-u>tp<CR>
-nnoremap <Leader>J <C-w>}
-nnoremap <Leader>K :<C-u>pc<CR>
-nnoremap <Leader>L :<C-u>tselect<CR>
+"nnoremap <Leader>J <C-w>}
+"nnoremap <Leader>K :<C-u>pc<CR>
+"nnoremap <Leader>L :<C-u>tselect<CR>
+nnoremap <silent> [b :bprevious<CR>
+nnoremap <silent> ]b :next<CR>
+nnoremap <silent> [B :bfirst<CR>
+nnoremap <silent> ]B :blast<CR>
 
 " gtags
 "-----------------------
-nnoremap <Leader>gj :GtagsCursor<CR>
-nnoremap <Leader>gJ :Gtags -f %<CR>
-nnoremap <Leader>n :cn<CR>
-nnoremap <Leader>p :cp<CR>
+nnoremap gj :GtagsCursor<CR>
+nnoremap gJ :Gtags -f %<CR>
+nnoremap gn :cn<CR>
+nnoremap gp :cp<CR>
 
 "nnoremap t <Nop>
 "nnoremap tj <C-]>
@@ -258,7 +264,7 @@ nnoremap <Leader>p :cp<CR>
 "nnoremap tl :<C-u>tags<CR>
 
 
-" 日本語入力がオンのままでもるコマンド(Enterキーは必要)
+" 日本語入力がオンのままコマンド(Enterキーは必要)
 nnoremap あ a
 nnoremap い i
 nnoremap う u
@@ -274,42 +280,51 @@ iabbr datei <C-r>=strftime("%Y.%m.%d")<CR>
 iabbr timei <C-r>=strftime("%Y.%m.%d %H:%M")<CR>
 iabbr maili pachicoma@gmail.com 
 
+"--------------------------------------------------
+" プラグイン関連
+"--------------------------------------------------
+" Pythonのパス
+let g:python3_host_prog = fnameescape(expand('$LOCALAPPDATA\Programs\Python\Python36\python.exe'))
 
-"--------------------------------------------------
-" プラグイン
-"--------------------------------------------------
-" プラグインが実際にインストールされるディレクトリ
-"let nvim_dir = substitute($XDG_CONFIG_HOME . '/nvim/', '\', '/', 'g')
-"let s:dein_dir = nvim_dir . '.cache/dein/'
-"" dein.vim 本体
-"let s:dein_repo_dir = s:dein_dir . 'repos/github.com/Shougo/dein.vim'
-"
-"" dein.vim がなければ github から落としてくる
-"if &runtimepath !~# 'dein.vim'
-"  if !isdirectory(s:dein_repo_dir)
-"    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
-"  endif
-"  set runtimepath+=s:dein_repo_dir
-"endif
+" Neovim設定ディレクトリ
+let nvim_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
+
+" deinのURL
+let dein_path = 'github.com/Shougo/dein.vim'
+let dein_url = 'https://' . dein_path
+
+" プラグインをインストールするディレクトリ
+let s:dein_dir = nvim_dir . '.cache/dein/'
+" dein.vim 本体
+let s:dein_repo_dir = s:dein_dir . 'repos/' . dein_path
+
+" dein.vimがなければインストールする
+if !isdirectory(s:dein_repo_dir)
+  execute '!git clone ' . dein_url s:dein_repo_dir
+endif
+" dein.vimをruntimepathへ追加
+let &runtimepath = s:dein_repo_dir . "," . &runtimepath
 
 " 設定開始
-"if dein#load_state(s:dein_dir)
-"  call dein#begin(s:dein_dir)
-"
-"  " プラグインリストを収めたTOML ファイル
-"  let g:rc_dir    = expand(nvim_dir . 'rc')
-"  let s:toml      = g:rc_dir . '/dein.toml'
-"
-"  " TOML を読み込み、キャッシュしておく
-"  call dein#load_toml(s:toml, {'lazy': 0})
-"
-"  " 設定終了
-"  call dein#end()
-"  call dein#save_state()
-"endif
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
 
-" もし、未インストールものものがあったらインストール
-"if dein#check_install()
-"  call dein#install()
-"endif
+  " プラグインリストファイル
+  let s:toml = nvim_dir . '/plugins.toml'
+  let s:lazy_toml = nvim_dir . '/plugins_lazy.toml'
+  " プラグインリストファイルを読込みキャッシュする
+  call dein#load_toml(s:toml, {'lazy': 0})
+  call dein#load_toml(s:lazy_toml, {'lazy': 1})
+  " 設定終了
+  call dein#end()
+  call dein#save_state()
+endif
+
+" 未インストールのプラグインがある場合はインストール
+if dein#check_install()
+  call dein#install()
+endif
+
+" プラグイン後でないと設定しないとカラー設定が有効にならない？
+filetype plugin indent on
 
