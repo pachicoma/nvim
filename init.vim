@@ -1,6 +1,6 @@
 ﻿"=================================================================
 "  nvim config file for windows @pachicoma
-"  Update: 2017.02.19
+"  Update: 2017.03.06
 "=================================================================
 "--------------------------------------------------
 " 基本設定 
@@ -8,7 +8,7 @@
 set nocompatible		" Vi互換モードは利用しない
 set novb				" ビープ音,フラッシュ無効
 set t_vb=				" ビープ音,フラッシュ無効
-set iminsert=0			" 挿入モードでIMEをONしない 2で前回のIME状態を復元とのことだが動作しない
+set iminsert=0			" 挿入モードでIMEをONしない
 set imsearch=-1			" 検索時のIME状態はiminsertに依存
 set history=500			" コマンド履歴の制限数
 set undolevels=1000		" undoの制限数
@@ -45,12 +45,17 @@ if has('migemo')        " migemoがあれば有効にする
 	set migemo
 endif
 
+
 " Grep
 "-----------------------
 " 出力フォーマット
 set grepformat=%f:%l:%m,%f:%l%m,%f\ \ %l%m,%f
 " 使用するGrepコマンド
-set grepprg=grep\ -nH    " grepコマンドの指定
+if executable('jvgrep')
+	set grepprg=jvgrep\ -nIrR
+else
+	set grepprg=grep\ -nH    " grepコマンドの指定
+endif
 " grep後QuickFixを開く
 augroup grepopen
 	autocmd!
@@ -93,13 +98,12 @@ set sessionoptions=buffers,folds,resize,sesdir,winpos,winsize
 " IME 日本語入力
 "-----------------------
 if has('multi_byte_ime')
-  " IMEの状態によってカーソルカラーを変更
-  highlight Cursor guifg=NONE guibg=Gray
-  highlight CursorIM guifg=NONE guibg=Purple 
-  " ノーマルモード遷移時では無効にする
-  inoremap <ESC> <ESC>:set iminsert=0<CR>
+" IMEの状態によってカーソルカラーを変更
+highlight Cursor guifg=NONE guibg=Gray
+highlight CursorIM guifg=NONE guibg=Purple 
+" Normalモード遷移時に無効にする
+inoremap <ESC> <ESC>:set iminsert=0<CR>
 endif
-"set imdisable
 
 " 補完メニュー
 "-----------------------
@@ -111,7 +115,16 @@ set pumheight=10
 "--------------------------------------------------
 " 開いたファイルのディレクトリへ移動
 au BufEnter * execute 'lcd ' fnameescape(expand('%:p:h'))
+au BufNewFile,BufRead *.toml setf vim
 
+"--------------------------------------------------
+" 共通変数
+"--------------------------------------------------
+" Neovim設定ディレクトリ
+let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
+let g:mygvimrc = s:nvim_config_dir . "ginit.vim"
+let g:mypluginlist = s:nvim_config_dir . "plugins.toml"
+let g:mypluginlazylist = s:nvim_config_dir . "plugins_lazy.toml"
 
 "--------------------------------------------------
 " キーバインド
@@ -131,10 +144,14 @@ autocmd FileType help nnoremap <buffer> q <C-w>c
 " 日本語入力固定モード
 "inoremap <silent> <C-j> <C-^>
 
-" vimrcの編集/更新
+" よく開くファイルのショートカット
 "-----------------------
-nnoremap <silent> <Leader>eg :<C-u>tabnew $MYVIMRC<CR>
-nnoremap <silent> <Leader>rg :<C-u>source $MYVIMRC<CR>
+nnoremap <silent> <Leader>ei :<C-u>e $MYVIMRC<CR>
+nnoremap <silent> <Leader>ri :<C-u>source $MYVIMRC<CR>
+nnoremap <silent> <Leader>eg :<C-u>e $XDG_CONFIG_HOME/nvim/ginit.vim<CR>
+nnoremap <silent> <Leader>rg :<C-u>e $XDG_CONFIG_HOME/nvim/ginit.vim<CR>
+nnoremap <silent> <Leader>ep :<C-u>e $XDG_CONFIG_HOME/nvim/plugins.toml<CR>
+nnoremap <silent> <Leader>el :<C-u>e $XDG_CONFIG_HOME/nvim/plugins_lazy.toml<CR>
 
 " ファイル操作
 "-----------------------
@@ -150,12 +167,20 @@ nnoremap <silent> <Leader><Leader>l :<C-u>setlocal wrap!<CR>
 "-----------------------
 nnoremap <silent> <Leader>j :bn<CR>
 nnoremap <silent> <Leader>k :bp<CR>
-nnoremap <silent> <Leader>b :ls<CR>:buf
+nnoremap <silent> <Leader>K :bd<CR>
+"nnoremap <silent> <Leader>b :ls<CR>:buf
 
 " ウィンドウ操作
 "-----------------------
 "nnoremap <silent> <Leader>ws	:split +enew<CR> 
 "nnoremap <silent> <Leader>wv	:vsplit +eneg<CR> 
+" フルスクリーン切り替え
+nnoremap <silent><F11> :call ToggleWindowFullScreen()<CR>
+let g:gui_fullscreen_status = 0
+function! ToggleWindowFullScreen()
+	let g:gui_fullscreen_status = (g:gui_fullscreen_status + 1) % 2
+	call GuiWindowFullScreen(g:gui_fullscreen_status)
+endfunction
 
 " タブ操作
 "-----------------------
@@ -171,8 +196,6 @@ nnoremap <silent> <Leader>l :tabnext<CR>
 " ノーマルモード
 nnoremap <S-h> ^ 
 nnoremap <S-l> $
-nnoremap <C-j> 5j
-nnoremap <C-k> 5k
 nnoremap <C-e> 5<C-e>
 nnoremap <C-y> 5<C-y>
 " インサートモード(Emacs like)
@@ -183,6 +206,13 @@ inoremap <C-b> <Left>
 inoremap <C-n> <Down>
 inoremap <C-p> <Up>
 inoremap <C-d> <Delete>
+" コマンドモード(Emacs like)
+cnoremap <C-f> <Right>
+cnoremap <C-b> <Left>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+inoremap <C-d> <Delete>
+cnoremap <C-c> <C-f>
 
 
 " 編集
@@ -229,9 +259,9 @@ nnoremap <Leader>rr yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 " Grep
 "-----------------------
 " 選択中の文字をgrep対象にする(*1)
-vnoremap <Leader>g y:<C-u>vimgrep /<C-R>"/
+"vnoremap <Leader>g y:<C-u>grep /<C-R>"/
 " カーソル位置の単語をgrep対象にする(*1)
-nnoremap <Leader>g yiw:<C-u>vimgrep /<C-R>"/
+nnoremap <Leader>g yiw:<C-u>grep /<C-R>"/
 
 " *1 ... 副作用で選択中の文字をヤンク
 
@@ -252,10 +282,10 @@ nnoremap <silent> ]B :blast<CR>
 
 " gtags
 "-----------------------
-nnoremap gj :GtagsCursor<CR>
-nnoremap gJ :Gtags -f %<CR>
-nnoremap gn :cn<CR>
-nnoremap gp :cp<CR>
+"nnoremap gj :GtagsCursor<CR>
+"nnoremap gJ :Gtags -f %<CR>
+"nnoremap gn :cn<CR>
+"nnoremap gp :cp<CR>
 
 "nnoremap t <Nop>
 "nnoremap tj <C-]>
@@ -284,17 +314,14 @@ iabbr maili pachicoma@gmail.com
 " プラグイン関連
 "--------------------------------------------------
 " Pythonのパス
-let g:python3_host_prog = fnameescape(expand('$LOCALAPPDATA\Programs\Python\Python36\python.exe'))
-
-" Neovim設定ディレクトリ
-let nvim_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
+let g:python3_host_prog = fnameescape(expand('C:\Python36\python.exe'))
 
 " deinのURL
 let dein_path = 'github.com/Shougo/dein.vim'
 let dein_url = 'https://' . dein_path
 
 " プラグインをインストールするディレクトリ
-let s:dein_dir = nvim_dir . '.cache/dein/'
+let s:dein_dir = s:nvim_config_dir . '.cache/dein/'
 " dein.vim 本体
 let s:dein_repo_dir = s:dein_dir . 'repos/' . dein_path
 
@@ -308,13 +335,10 @@ let &runtimepath = s:dein_repo_dir . "," . &runtimepath
 " 設定開始
 if dein#load_state(s:dein_dir)
   call dein#begin(s:dein_dir)
-
   " プラグインリストファイル
-  let s:toml = nvim_dir . '/plugins.toml'
-  let s:lazy_toml = nvim_dir . '/plugins_lazy.toml'
   " プラグインリストファイルを読込みキャッシュする
-  call dein#load_toml(s:toml, {'lazy': 0})
-  call dein#load_toml(s:lazy_toml, {'lazy': 1})
+  call dein#load_toml(g:mypluginlist, {'lazy': 0})
+  call dein#load_toml(g:mypluginlazylist, {'lazy': 1})
   " 設定終了
   call dein#end()
   call dein#save_state()

@@ -7,3 +7,93 @@ hook_add = '''
   autocmd! BufWritePost * Neomake
 '''
 
+[[plugins]]
+repo = 't9md/vim-quickhl'
+hook_add = '''
+"let g:quickhl_cword_enable_at_startup = 1		" カーソル位置ハイライトを最初から有効
+" キーバインド
+nmap <Leader>* <Plug>(quickhl-manual-toggle)
+vmap <Leader>; <Plug>(quickhl-manual-this)
+nmap <Leader>; <Plug>(quickhl-manual-this)
+nmap <Leader>+ <Plug>(quickhl-cword-toggle)
+nmap <Leader>] <Plug>(quickhl-tag-toggle)
+vmap <Leader><Esc> <Plug>(quickhl-manual-reset)
+nmap <Leader><Esc> <Plug>(quickhl-manual-reset)
+" ハイライト色
+"highlight Search gui=underline guibg=None guifg=None
+let g:quickhl_manual_colors = [
+	\ "gui=none ctermfg=16  ctermbg=153 guibg=#0a7383 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=56  guibg=#a010a0 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=5   guibg=#0070e0 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=4   guibg=#c0c000 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=3   guibg=#40a070 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=1   guibg=#a00000 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=50  guibg=#1060a0 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=6   guibg=#007020 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=2   guibg=#ee8040 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=45  guibg=#603080 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=16  guibg=#00bb00 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=21  guibg=#700000 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=22  guibg=#06287e guifg=#ffffff",
+	\ ]
+" 常にハイライトさせる単語
+"let g:quickhl_manual_enable_at_startup = 1
+"let g:quickhl_manual_keywords = [
+"	\ "pachicoma",
+"	\ {"pattern": '\s\+$', "regexp": 1 },  
+"	\ ]
+'''
+ 
+[[plugins]]
+repo = 'mbbill/undotree'
+hook_add = '''
+if has("persistent_undo")
+	" ファイルを閉じてもUndo記録を残す
+	set undodir=$XDG_CACHE_HOME/undodir/
+	set undofile
+endif
+let g:undotree_WindowLayout = 4			" undotreeは左側/diffは下にウィンドウ幅で表示
+let g:undotree_ShortIndicators = 1		" 時間単位は短く表示
+let g:undotree_SplitWidth = 30			" undotreeのウィンドウ幅
+let g:undotree_SetFocusWhenToggle = 1   " undotreeを開いたらフォーカスする
+"let g:undotree_DiffAutoOpen = 0         " diffウィンドウは起動時無効
+let g:undotree_DiffpanelHeight = 8		" diffウィンドウの行数
+"let g:undotree_HighlightChangedText = 0 " 変更箇所のハイライト無効
+" undotreeをトグル表示
+noremap <Leader>u :UndotreeToggle<CR>
+
+" undotreeバッファ内でのキーバインド設定
+function! g:Undotree_CustomMap()
+	map <buffer> K call UndotreeGoNextSaved()
+	map <buffer> J call UndotreeGoPreviousSaved()
+    map <silent><buffer> <Esc> q
+    map <silent><buffer> h ?
+endfunction
+'''
+
+[[plugins]]
+repo = 'scrooloose/nerdtree'
+hook_add = '''
+let g:NERDTreeShowHidden = 1               " 隠しファイルを表示
+let g:NERDTreeIgnore=['\.git$', '\.hg$']   " 非表示ファイルリスト
+let g:NERDTreeShowBookmarks = 1            " ブックマークを表示
+" Bookmarkへ追加登録
+"call NERDTree::NERDTreeAddKeyMap( {
+"	\ 'key': 'b',
+"	\ 'callback': 'NEARDTreeAddBookmarkHandler',
+"	\ 'quickhelpText': 'add Bookmark',
+"	\ 'scope': 'Node' } )
+"
+"function! NEARDTreeAddBookmarkHandler(node)
+"	:Bookmark<CR>
+"endfunction
+'''
+
+[[plugins]]
+repo = 'jistr/vim-nerdtree-tabs'
+on_source = ['nerdtree']
+hook_add = '''
+" NERDTreeの表示/非表示
+nnoremap <Leader>ee :NERDTreeTabsToggle<CR>
+'''
+
