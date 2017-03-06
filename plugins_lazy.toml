@@ -42,12 +42,20 @@ call denite#custom#var('grep', 'final_opts', [])
 repo = 'fatih/vim-go'
 on_ft = 'go'
 hook_source = '''
-  let g:go_fmt_command = 'goimports'
-  let s:goargs = go#package#ImportPath(expand('%:p:h'))
-  let g:neomake_go_errcheck_maker = {
-    \ 'args': ['-abspath', s:goargs],
+let g:go_fmt_command = 'goimports'
+let s:goargs = go#package#ImportPath(expand('%:p:h'))
+let g:neomake_go_errcheck_maker = {
+	\ 'args': ['-abspath', s:goargs],
 	\ 'errorformat': %f:%l:%c:\ %m, %f:%l:%c\ %#%m',
 	\ }
-  let g:neomake_go_enabled_makers = ['golint', 'govet', 'errcheck']
+let g:neomake_go_enabled_makers = ['golint', 'govet', 'errcheck']
+'''
+
+[[plugins]]
+repo = 'nathanaelkane/vim-indent-guides'
+hook_add = '''
+let g:indent_guides_enable_on_vim_startup = 1	" 起動時に有効
+let g:indent_guides_guide_size = 1				" 可視カラム幅
+let g:indent_guides_start_level = 2				" 可視化階層Lvは2以上
 '''
 

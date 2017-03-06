@@ -72,34 +72,33 @@ noremap <Leader>u :UndotreeToggle<CR>
 function! g:Undotree_CustomMap()
 	map <buffer> K call UndotreeGoNextSaved()
 	map <buffer> J call UndotreeGoPreviousSaved()
-    map <silent><buffer> <Esc> q
-    map <silent><buffer> h ?
+	map <silent><buffer> <Esc> q
+	map <silent><buffer> h ?
 endfunction
 '''
 
 [[plugins]]
-repo = 'scrooloose/nerdtree'
+repo = 'kshenoy/vim-signature'
 hook_add = '''
-let g:NERDTreeShowHidden = 1               " 隠しファイルを表示
-let g:NERDTreeIgnore=['\.git$', '\.hg$']   " 非表示ファイルリスト
-let g:NERDTreeShowBookmarks = 1            " ブックマークを表示
-" Bookmarkへ追加登録
-"call NERDTree::NERDTreeAddKeyMap( {
-"	\ 'key': 'b',
-"	\ 'callback': 'NEARDTreeAddBookmarkHandler',
-"	\ 'quickhelpText': 'add Bookmark',
-"	\ 'scope': 'Node' } )
-"
-"function! NEARDTreeAddBookmarkHandler(node)
-"	:Bookmark<CR>
-"endfunction
-'''
-
-[[plugins]]
-repo = 'jistr/vim-nerdtree-tabs'
-on_source = ['nerdtree']
-hook_add = '''
-" NERDTreeの表示/非表示
-nnoremap <Leader>ee :NERDTreeTabsToggle<CR>
+" 全marks/markers削除時は消して良いか確認する
+let g:SignaturePurgeConfirmation = 1
+" キーバインド設定
+let g:SignatureMap = {
+	\ 'Leader'             :  "m",
+	\ 'PlaceNextMark'      :  "m,",
+	\ 'ToggleMarkAtLine'   :  "m.",
+	\ 'PurgeMarksAtLine'   :  "m-",
+	\ 'DeleteMark'         :  "dm",
+	\ 'PurgeMarks'         :  "m<Space>",
+	\ 'PurgeMarkers'       :  "m<BS>",
+	\ 'GotoNextSpotAlpha'  :  "]@",
+	\ 'GotoPrevSpotAlpha'  :  "[@",
+	\ 'GotoNextMarker'     :  "]-",
+	\ 'GotoPrevMarker'     :  "[-",
+	\ 'GotoNextMarkerAny'  :  "]^",
+	\ 'GotoPrevMarkerAny'  :  "[^",
+	\ 'ListBufferMarks'    :  "m/",
+	\ 'ListBufferMarkers'  :  "m?"
+	\ }
 '''
 

@@ -24,7 +24,7 @@ set cursorline			" カーソル行に強調表示
 set cmdheight=1			" コマンドラインの高さ
 set showbreak=\>		" 折り返し行の先頭に表示する文字列
 set ambiwidth=double	" ■とかを正しく表示 
-set foldmethod=syntax	" 構文で折畳む
+"set foldmethod=indent	" インデントで折畳みアルゴリズム
 "[BuffNo][読専][Help][Preview] FilePath[修正F] >> (行,列)[utf-8:unix][最終行]
 set statusline=[%n]%r%h%w%F\ %m%=(%l,%c)\ [%{&fenc!=''?&fenc:&enc}:%{&ff}][%LL]
 set laststatus=2		" ステータスラインを常時表示
@@ -44,7 +44,7 @@ set gdefault			" 検索時は/gオプション付がデフォルト
 set ignorecase			" 大文字・小文字区別無しで検索
 set smartcase			" 検索パターンが大文字を含んでいたら区別する
 set wrapscan			" バッファ末尾まで検索したらバッファ先頭から検索する
-if has('migemo')        " migemoがあれば有効にする
+if has('migemo')		" migemoがあれば有効にする
 	set migemo
 endif
 
@@ -55,14 +55,14 @@ endif
 set grepformat=%f:%l:%m,%f:%l%m,%f\ \ %l%m,%f
 " 使用するGrepコマンド
 if executable('jvgrep')
-	set grepprg=jvgrep\ -nIrR
+	set grepprg=jvgrep\ -IrR
 else
-	set grepprg=grep\ -nH    " grepコマンドの指定
+	set grepprg=grep\ -nH
 endif
 " grep後QuickFixを開く
 augroup grepopen
 	autocmd!
-	autocmd QuickfixCmdPost vimgrep cw
+	autocmd QuickfixCmdPost grep cw
 augroup END
 
 " タグ
@@ -101,12 +101,12 @@ set sessionoptions=buffers,folds,resize,sesdir,winpos,winsize
 " IME 日本語入力
 "-----------------------
 if has('multi_byte_ime')
-" IMEの状態によってカーソルカラーを変更
-highlight Cursor guifg=NONE guibg=Gray
-highlight CursorIM guifg=NONE guibg=Purple 
-" Normalモード遷移時に無効にする
-inoremap <ESC> <ESC>:set iminsert=0<CR>
-endif
+	" IMEの状態によってカーソルカラーを変更
+	highlight Cursor guifg=NONE guibg=Gray
+	highlight CursorIM guifg=NONE guibg=Purple 
+	" Normalモード遷移時に無効にする
+	inoremap <ESC> <ESC>:set iminsert=0<CR>
+	endif
 
 " 補完メニュー
 "-----------------------
@@ -128,20 +128,32 @@ let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/'
 let g:mygvimrc = s:nvim_config_dir . "ginit.vim"
 let g:mypluginlist = s:nvim_config_dir . "plugins.toml"
 let g:mypluginlazylist = s:nvim_config_dir . "plugins_lazy.toml"
+
 "--------------------------------------------------
 " キーバインド
 "--------------------------------------------------
 " 共通
 "-----------------------
 " Leader key
+nnoremap <Space> <nop>
 let mapleader = "\<Space>"
 
 " ;でコマンド入力モードへ
 noremap ; :
 noremap : ;
 
-" qでヘルプウィンドウを閉じる
+" helpウィンドウ
+"-----------------------
+" qでウィンドウを閉じる
 autocmd FileType help nnoremap <buffer> q <C-w>c
+
+" quickfixウィンドウ
+"-----------------------
+" qでウィンドウを閉じる
+autocmd FileType qf nnoremap <buffer> q <C-w>c
+nnoremap <silent> <Leader>O :<C-u>co<CR>
+nnoremap <silent> <C-,> :<C-u>cprevious<CR>
+nnoremap <silent> <C-.> :<C-u>cnext<CR>
 
 " 日本語入力固定モード
 "inoremap <silent> <C-j> <C-^>
@@ -157,6 +169,9 @@ nnoremap <silent> <Leader>el :<C-u>e $XDG_CONFIG_HOME/nvim/plugins_lazy.toml<CR>
 
 " ファイル操作
 "-----------------------
+"wshadaファイルの強制更新
+nnoremap <Leader>w :<C-u>wshada!<CR>
+
 " 保存
 nnoremap <C-s> <Esc>:<C-u>w<CR>	
 inoremap <C-s> <Esc>:<C-u>w<CR>	
@@ -169,7 +184,8 @@ nnoremap <silent> <Leader><Leader>l :<C-u>setlocal wrap!<CR>
 "-----------------------
 nnoremap <silent> <Leader>j :bn<CR>
 nnoremap <silent> <Leader>k :bp<CR>
-nnoremap <silent> <Leader>K :bd<CR>
+nnoremap <silent> <Leader>W :bd<CR>
+nnoremap <silent> <Leader>o <C-^>
 "nnoremap <silent> <Leader>b :ls<CR>:buf
 
 " ウィンドウ操作
@@ -250,20 +266,21 @@ nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 " 検索/置換
 "-----------------------
 " 検索ワードのハイライト表示を解除する
-noremap <silent><ESC><ESC> :noh<CR>
+noremap <silent><ESC><ESC> :<C-u>set nohlsearch!<CR>
+
 " ビジュアルモードで選択中の文字を置換対象にする(*1)
-vnoremap <Leader>rr y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+vnoremap <C-x>r y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 " カーソル位置の単語を置換対象にする(*1)
-nnoremap <Leader>rr yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+nnoremap <C-x>r yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 
 " *1 ... 副作用で選択中の文字をヤンク
 
 " Grep
 "-----------------------
 " 選択中の文字をgrep対象にする(*1)
-"vnoremap <Leader>g y:<C-u>grep /<C-R>"/
+vnoremap <C-x>g y:<C-u>grep /<C-R>"/
 " カーソル位置の単語をgrep対象にする(*1)
-nnoremap <Leader>g yiw:<C-u>grep /<C-R>"/
+nnoremap <C-x>g yiw:<C-u>grep /<C-R>"/
 
 " *1 ... 副作用で選択中の文字をヤンク
 
@@ -278,7 +295,7 @@ nnoremap <Leader>g yiw:<C-u>grep /<C-R>"/
 "nnoremap <Leader>K :<C-u>pc<CR>
 "nnoremap <Leader>L :<C-u>tselect<CR>
 nnoremap <silent> [b :bprevious<CR>
-nnoremap <silent> ]b :next<CR>
+nnoremap <silent> ]b :bnext<CR>
 nnoremap <silent> [B :bfirst<CR>
 nnoremap <silent> ]B :blast<CR>
 
@@ -309,8 +326,9 @@ nnoremap ｐ p
 " 入力補完単語候補
 "--------------------------------------------------
 iabbr datei <C-r>=strftime("%Y.%m.%d")<CR>
-iabbr timei <C-r>=strftime("%Y.%m.%d %H:%M")<CR>
-iabbr maili pachicoma@gmail.com 
+iabbr timei <C-r>=strftime("%H:%M")<CR>
+iabbr dti <C-r>=strftime("%Y.%m.%d %H:%M")<CR>
+iabbr maili pachicoma@gmail.com
 
 "--------------------------------------------------
 " プラグイン関連
@@ -329,26 +347,26 @@ let s:dein_repo_dir = s:dein_dir . 'repos/' . dein_path
 
 " dein.vimがなければインストールする
 if !isdirectory(s:dein_repo_dir)
-  execute '!git clone ' . dein_url s:dein_repo_dir
+	execute '!git clone ' . dein_url s:dein_repo_dir
 endif
 " dein.vimをruntimepathへ追加
 let &runtimepath = s:dein_repo_dir . "," . &runtimepath
 
 " 設定開始
 if dein#load_state(s:dein_dir)
-  call dein#begin(s:dein_dir)
-  " プラグインリストファイル
-  " プラグインリストファイルを読込みキャッシュする
-  call dein#load_toml(g:mypluginlist, {'lazy': 0})
-  call dein#load_toml(g:mypluginlazylist, {'lazy': 1})
-  " 設定終了
-  call dein#end()
-  call dein#save_state()
+	call dein#begin(s:dein_dir)
+	" プラグインリストファイル
+	" プラグインリストファイルを読込みキャッシュする
+	call dein#load_toml(g:mypluginlist, {'lazy': 0})
+	call dein#load_toml(g:mypluginlazylist, {'lazy': 1})
+	" 設定終了
+	call dein#end()
+	call dein#save_state()
 endif
 
 " 未インストールのプラグインがある場合はインストール
 if dein#check_install()
-  call dein#install()
+	call dein#install()
 endif
 
 " プラグイン後でないと設定しないとカラー設定が有効にならない？
