@@ -24,7 +24,7 @@ set cursorline			" カーソル行に強調表示
 set cmdheight=1			" コマンドラインの高さ
 set showbreak=\>       	" 折り返し行の先頭に表示する文字列
 set ambiwidth=double	" ■とかを正しく表示 
-"set foldmethod=indent	" インデントで折畳む
+set foldmethod=syntax	" 構文で折畳む
 "[BuffNo][読専][Help][Preview] FilePath[修正F] >> (行,列)[utf-8:unix][最終行]
 set statusline=[%n]%r%h%w%F\ %m%=(%l,%c)\ [%{&fenc!=''?&fenc:&enc}:%{&ff}][%LL]
 set laststatus=2		" ステータスラインを常時表示
@@ -33,6 +33,9 @@ set showcmd				" 未完了コマンドをステータスラインに表示
 "Font config see ginit.vim
 syntax on				" シンタックスハイライト
 colors desert			" カラースキーム
+"不可視文字の表示
+set list listchars=tab:>_,trail:_
+highlight SpecialKey term=underline guifg=gray
 
 " 検索
 "-----------------------
@@ -125,7 +128,6 @@ let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/'
 let g:mygvimrc = s:nvim_config_dir . "ginit.vim"
 let g:mypluginlist = s:nvim_config_dir . "plugins.toml"
 let g:mypluginlazylist = s:nvim_config_dir . "plugins_lazy.toml"
-
 "--------------------------------------------------
 " キーバインド
 "--------------------------------------------------
