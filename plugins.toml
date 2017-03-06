@@ -19,23 +19,29 @@ nmap <Leader>+ <Plug>(quickhl-cword-toggle)
 nmap <Leader>] <Plug>(quickhl-tag-toggle)
 vmap <Leader><Esc> <Plug>(quickhl-manual-reset)
 nmap <Leader><Esc> <Plug>(quickhl-manual-reset)
-" ハイライト色
+" 検索時のハイライト色
 "highlight Search gui=underline guibg=None guifg=None
+" 指定単語ハイライト色
 let g:quickhl_manual_colors = [
-	\ "gui=none ctermfg=16  ctermbg=153 guibg=#0a7383 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=56  guibg=#a010a0 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=5   guibg=#0070e0 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=4   guibg=#c0c000 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=3   guibg=#40a070 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=1   guibg=#a00000 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=50  guibg=#1060a0 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=6   guibg=#007020 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=2   guibg=#ee8040 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=45  guibg=#603080 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=16  guibg=#00bb00 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=21  guibg=#700000 guifg=#ffffff",
-	\ "gui=none ctermfg=7   ctermbg=22  guibg=#06287e guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=153 guibg=#4169e1 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=1   guibg=#70a040 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=2   guibg=#ffa500 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=3   guibg=#cd4040 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=4   guibg=#20b2aa guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=5   guibg=#6a5acd guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=6   guibg=#f08080 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=45  guibg=#1060a0 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=16  guibg=#2e8b57 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=21  guibg=#a9a9a9 guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=22  guibg=#e0c67c guifg=#ffffff",
+	\ "gui=none ctermfg=7   ctermbg=56  guibg=#dd0add guifg=#ffffff",
+	\ "gui=none ctermfg=16  ctermbg=50  guibg=#00ffff guifg=#222222",
 	\ ]
+" カーソル追従ハイライト色
+let g:quickhl_cword_hl_command = "QuickhlCword gui=underline cterm=underline term=underline"
+" タグファイル単語ハイライト色
+let g:quickhl_tag_hl_command = "QuickhlTag gui=underline cterm=underline term=underline"
+
 " 常にハイライトさせる単語
 "let g:quickhl_manual_enable_at_startup = 1
 "let g:quickhl_manual_keywords = [

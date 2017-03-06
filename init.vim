@@ -22,7 +22,7 @@ set ruler				" カーソル位置などを右下に表示
 set cursorline			" カーソル行に強調表示
 "set cursorcolumn		" カーソル列を強調表示
 set cmdheight=1			" コマンドラインの高さ
-set showbreak=\>       	" 折り返し行の先頭に表示する文字列
+set showbreak=\>		" 折り返し行の先頭に表示する文字列
 set ambiwidth=double	" ■とかを正しく表示 
 set foldmethod=syntax	" 構文で折畳む
 "[BuffNo][読専][Help][Preview] FilePath[修正F] >> (行,列)[utf-8:unix][最終行]
