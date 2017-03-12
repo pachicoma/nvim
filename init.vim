@@ -1,7 +1,27 @@
 ﻿"=================================================================
-"  nvim config file for windows @pachicoma
-"  Update: 2017.03.06
+"  Neovim設定ファイル for windows @pachicoma
+"  Update: 2017.03.12
 "=================================================================
+"--------------------------------------------------
+" 環境情報設定
+"--------------------------------------------------
+" Windows環境判定
+let s:is_windows = has('win32') || has('win64')
+if s:is_windows
+	" Neovim設定ディレクトリ
+	if $XDG_CONFIG_HOME == ""
+		let s:nvim_config_dir = substitute(expand($LOCALAPPDATA) . '/nvim/', '\', '/', 'g')
+	else
+		let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
+	endif
+else
+	let s:nvim_config_dir = expand($XDG_CONFIG_HOME) . '/nvim/'
+endif
+" VIM起動時にプラグイン設定
+let g:init_plugins = s:nvim_config_dir . "plugins.toml"
+" 遅延読み込みプラグイン
+let g:init_lazy_plugins = s:nvim_config_dir . "plugins_lazy.toml"
+
 "--------------------------------------------------
 " 基本設定 
 "--------------------------------------------------
@@ -14,32 +34,26 @@ set history=500			" コマンド履歴の制限数
 set undolevels=1000		" undoの制限数
 set nobackup			" バックアップファイルは作らない
 set mouse=a				" マウスを使えるようにする
-
-" 画面見た目
-"-----------------------
 set number				" 行番号表示
 set ruler				" カーソル位置などを右下に表示
 set cursorline			" カーソル行に強調表示
 "set cursorcolumn		" カーソル列を強調表示
 set cmdheight=1			" コマンドラインの高さ
 set showbreak=\>		" 折り返し行の先頭に表示する文字列
-set ambiwidth=double	" ■とかを正しく表示 
+set ambiwidth=double	" ■とかを正しく表示
 "set foldmethod=indent	" インデントで折畳みアルゴリズム
-"[BuffNo][読専][Help][Preview] FilePath[修正F] >> (行,列)[utf-8:unix][最終行]
-set statusline=[%n]%r%h%w%F\ %m%=(%l,%c)\ [%{&fenc!=''?&fenc:&enc}:%{&ff}][%LL]
-set laststatus=2		" ステータスラインを常時表示
-"let g:hi_insert = 'hi StatusLine guifg=DarkBlue guibg=DarkYellow gui=none ctermfg=Blue ctermbg=Yellow cterm=none'
 set showcmd				" 未完了コマンドをステータスラインに表示
 "Font config see ginit.vim
 syntax on				" シンタックスハイライト
 colors desert			" カラースキーム
-"不可視文字の表示
-set list listchars=tab:>_,trail:_
-highlight SpecialKey term=underline guifg=gray
+" 不可視文字の表示 ※カラースキーム設定の後に設定すること
+set list listchars=tab:>_,trail:_,eol:^
+highlight SpecialKey term=none guifg=gray
+highlight NonText guibg=none guifg=gray
 
 " 検索
 "-----------------------
-set incsearch			" インクリメンタル検索 
+set incsearch			" インクリメンタル検索
 set gdefault			" 検索時は/gオプション付がデフォルト
 set ignorecase			" 大文字・小文字区別無しで検索
 set smartcase			" 検索パターンが大文字を含んでいたら区別する
@@ -48,14 +62,13 @@ if has('migemo')		" migemoがあれば有効にする
 	set migemo
 endif
 
-
 " Grep
 "-----------------------
 " 出力フォーマット
 set grepformat=%f:%l:%m,%f:%l%m,%f\ \ %l%m,%f
 " 使用するGrepコマンド
-if executable('jvgrep')
-	set grepprg=jvgrep\ -IrR
+if executable('rg')
+	set grepprg=rg\ --vimgrep
 else
 	set grepprg=grep\ -nH
 endif
@@ -64,6 +77,7 @@ augroup grepopen
 	autocmd!
 	autocmd QuickfixCmdPost grep cw
 augroup END
+set wildignore+=/.git/*,/*.svn/*,*.b
 
 " タグ
 "-----------------------
@@ -80,13 +94,48 @@ set wildmode=longest:full  " 共通部分最長補完＋wildmenu
 set backspace=indent,eol,start
 set whichwrap=b,s,h,l,<,>,[,]
 
+" ステータスライン
+"-----------------------
+set laststatus=2		" ステータスラインを常時表示
+"[BuffNo][読専][Help][Preview] FilePath[修正F] >> (行,列)[utf-8:unix][最終行]
+set statusline=[%n]%r%h%w%F\ %m%=(%l,%c)\ [%{&fenc!=''?&fenc:&enc}:%{&ff}][%LL]
+" 挿入モード時、ステータスラインの色を変更
+let s:hi_insert = 'highlight StatusLine guifg=darkblue guibg=darkyellow gui=none ctermfg=blue ctermbg=yellow cterm=none'
+if has('syntax')
+	augroup InsertHook
+		autocmd!
+		autocmd InsertEnter * call s:StatusLine('Enter')
+		autocmd InsertLeave * call s:StatusLine('Leave')
+	augroup END
+endif
+" ステータスライン切替時にコールする関数
+let s:slhlcmd = ''
+function! s:StatusLine(mode)
+	if a:mode == 'Enter'
+		silent! let s:slhlcmd = 'highlight ' . s:GetHighlight('StatusLine')
+		silent exec s:hi_insert
+	else
+		highlight clear StatusLine
+		silent exec s:slhlcmd
+	endif
+endfunction
+" ステータスラインの色を取得
+function! s:GetHighlight(hi)
+	redir => hl
+		exec 'highlight '.a:hi
+	redir END
+	let hl = substitute(hl, '[\r\n]', '', 'g')
+	let hl = substitute(hl, 'xxx', '', '')
+	return hl
+endfunction
+
 " インデント
 "-----------------------
-set tabstop=4           " 画面上でのタブが占める幅
-set softtabstop=4       " TabやBS押下時のカーソル移動値
-set shiftwidth=4        " autoindentや<<,>>でのインデント量
-set shiftround          " インデント量をshiftwidthの倍数で丸める
-set formatoptions=q     " 自動フォーマット
+set tabstop=4			" 画面上でのタブが占める幅
+set softtabstop=4		" TabやBS押下時のカーソル移動値
+set shiftwidth=4		" autoindentや<<,>>でのインデント量
+set shiftround			" インデント量をshiftwidthの倍数で丸める
+set formatoptions=q		" 自動フォーマット
 
 " タブ操作
 "-----------------------
@@ -100,34 +149,20 @@ set sessionoptions=buffers,folds,resize,sesdir,winpos,winsize
 
 " IME 日本語入力
 "-----------------------
-if has('multi_byte_ime')
-	" IMEの状態によってカーソルカラーを変更
-	highlight Cursor guifg=NONE guibg=Gray
-	highlight CursorIM guifg=NONE guibg=Purple 
-	" Normalモード遷移時に無効にする
-	inoremap <ESC> <ESC>:set iminsert=0<CR>
-	endif
+" Normalモード遷移時に無効にする
+inoremap <ESC> <ESC>:set iminsert=0<CR>
 
 " 補完メニュー
 "-----------------------
 set pumheight=10
-
 
 "--------------------------------------------------
 " ファイルオープン時のアクション
 "--------------------------------------------------
 " 開いたファイルのディレクトリへ移動
 au BufEnter * execute 'lcd ' fnameescape(expand('%:p:h'))
+" TOMLファイルはvimスクリプトとして開く
 au BufNewFile,BufRead *.toml setf vim
-
-"--------------------------------------------------
-" 共通変数
-"--------------------------------------------------
-" Neovim設定ディレクトリ
-let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
-let g:mygvimrc = s:nvim_config_dir . "ginit.vim"
-let g:mypluginlist = s:nvim_config_dir . "plugins.toml"
-let g:mypluginlazylist = s:nvim_config_dir . "plugins_lazy.toml"
 
 "--------------------------------------------------
 " キーバインド
@@ -142,8 +177,12 @@ let mapleader = "\<Space>"
 noremap ; :
 noremap : ;
 
-" helpウィンドウ
+nnoremap <C-S-s> <nop>
+
+" help
 "-----------------------
+" カーソル位置の単語をヘルプ
+nnoremap <F1> :<C-u>help<Space><C-r><C-w><CR>
 " qでウィンドウを閉じる
 autocmd FileType help nnoremap <buffer> q <C-w>c
 
@@ -163,7 +202,7 @@ nnoremap <silent> <C-.> :<C-u>cnext<CR>
 nnoremap <silent> <Leader>ei :<C-u>e $MYVIMRC<CR>
 nnoremap <silent> <Leader>ri :<C-u>source $MYVIMRC<CR>
 nnoremap <silent> <Leader>eg :<C-u>e $XDG_CONFIG_HOME/nvim/ginit.vim<CR>
-nnoremap <silent> <Leader>rg :<C-u>e $XDG_CONFIG_HOME/nvim/ginit.vim<CR>
+nnoremap <silent> <Leader>rg :<C-u>source $XDG_CONFIG_HOME/nvim/ginit.vim<CR>
 nnoremap <silent> <Leader>ep :<C-u>e $XDG_CONFIG_HOME/nvim/plugins.toml<CR>
 nnoremap <silent> <Leader>el :<C-u>e $XDG_CONFIG_HOME/nvim/plugins_lazy.toml<CR>
 
@@ -173,8 +212,7 @@ nnoremap <silent> <Leader>el :<C-u>e $XDG_CONFIG_HOME/nvim/plugins_lazy.toml<CR>
 nnoremap <Leader>w :<C-u>wshada!<CR>
 
 " 保存
-nnoremap <C-s> <Esc>:<C-u>w<CR>	
-inoremap <C-s> <Esc>:<C-u>w<CR>	
+nnoremap <C-s> <Esc>:<C-u>update<CR>
 "nnoremap <Leader>w :w<CR>
 
 " ウィンドウ幅で折り返しON/OFF切替
@@ -190,8 +228,6 @@ nnoremap <silent> <Leader>o <C-^>
 
 " ウィンドウ操作
 "-----------------------
-"nnoremap <silent> <Leader>ws	:split +enew<CR> 
-"nnoremap <silent> <Leader>wv	:vsplit +eneg<CR> 
 " フルスクリーン切り替え
 nnoremap <silent><F11> :call ToggleWindowFullScreen()<CR>
 let g:gui_fullscreen_status = 0
@@ -204,18 +240,15 @@ endfunction
 "-----------------------
 nnoremap <silent> <Leader>tn :tabnew<CR> 
 nnoremap <silent> <Leader>tt :tabnew `=tempname()`<CR>
-"map <silent> <C-t>n :tabnew<CR>
-nnoremap <silent> <Leader>cc :tabclose<CR>
+nnoremap <silent> <Leader>tw :tabclose<CR>
 nnoremap <silent> <Leader>h :tabprevious<CR>
 nnoremap <silent> <Leader>l :tabnext<CR>
 
 " カーソル移動
 "-----------------------
 " ノーマルモード
-nnoremap <S-h> ^ 
+nnoremap <S-h> ^
 nnoremap <S-l> $
-nnoremap <C-e> 5<C-e>
-nnoremap <C-y> 5<C-y>
 " インサートモード(Emacs like)
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
@@ -232,12 +265,19 @@ cnoremap <C-e> <End>
 inoremap <C-d> <Delete>
 cnoremap <C-c> <C-f>
 
+" カーソル中央でスクロール
+noremap <expr> <C-d> max([winheight(0) - 2, 1])
+      \ . "\<C-d>" . (line('w$') >= line('$') ? "L" : "M")
+noremap <expr> <C-u> max([winheight(0) - 2, 1])
+      \ . "\<C-u>" . (line('w0') <= 1 ? "H" : "M")
 
 " 編集
 "-----------------------
 " 改行
 inoremap <C-j> <CR>
-" ビジュアルモードでのインデント
+" インデント
+nnoremap < <<
+nnoremap > >>
 vnoremap < <gv
 vnoremap > >gv
 
@@ -266,27 +306,35 @@ nnoremap <silent> ciy ciw<C-r>0<ESC>:let@/=@1<CR>:noh<CR>
 " 検索/置換
 "-----------------------
 " 検索ワードのハイライト表示を解除する
-noremap <silent><ESC><ESC> :<C-u>set nohlsearch!<CR>
-
-" ビジュアルモードで選択中の文字を置換対象にする(*1)
-vnoremap <C-x>r y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+noremap <silent><ESC><ESC> :<C-u>noh<CR>
+" カーソル位置の単語を書換て置換(.コマンド使用可)
+nnoremap <C-c>r *``cgn
+nnoremap <C-c>R *``cgN
 " カーソル位置の単語を置換対象にする(*1)
-nnoremap <C-x>r yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+nnoremap <C-e>r yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+" ビジュアルモードで選択中の文字を置換対象にする(*1)
+vnoremap <C-e>r y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
+" 
+vnoremap <expr> cn "y/\\V\<C-r>=escape(@\", '/')\<CR>\<CR>" . "``cgn"
+vnoremap <expr> cN "y/\\V\<C-r>=escape(@\", '/')\<CR>\<CR>" . "``cgN"
 
 " *1 ... 副作用で選択中の文字をヤンク
 
 " Grep
 "-----------------------
 " 選択中の文字をgrep対象にする(*1)
-vnoremap <C-x>g y:<C-u>grep /<C-R>"/
+vnoremap <C-e>g y:<C-u>grep <C-R>"
 " カーソル位置の単語をgrep対象にする(*1)
-nnoremap <C-x>g yiw:<C-u>grep /<C-R>"/
+nnoremap <C-e>g yiw:<C-u>grep <C-R>"
 
 " *1 ... 副作用で選択中の文字をヤンク
 
 " ctags
 "-----------------------
-"nnoremap <Leader>j <C-]>
+nnoremap <silent>Jo <C-o>
+nnoremap <silent>Ji <C-i>
+nnoremap <silent>JJ <C-]>
+nnoremap <silent>Jj <C-t>
 "nnoremap <Leader>jj g<C-]>
 "nnoremap <Leader>k <C-t>
 "nnoremap <Leader>J :<C-u>tn<CR>
@@ -334,6 +382,7 @@ iabbr maili pachicoma@gmail.com
 " プラグイン関連
 "--------------------------------------------------
 " Pythonのパス
+let g:python_host_prog = fnameescape(expand('C:\Python27\python.exe'))
 let g:python3_host_prog = fnameescape(expand('C:\Python36\python.exe'))
 
 " deinのURL
@@ -357,8 +406,8 @@ if dein#load_state(s:dein_dir)
 	call dein#begin(s:dein_dir)
 	" プラグインリストファイル
 	" プラグインリストファイルを読込みキャッシュする
-	call dein#load_toml(g:mypluginlist, {'lazy': 0})
-	call dein#load_toml(g:mypluginlazylist, {'lazy': 1})
+	call dein#load_toml(g:init_plugins, {'lazy': 0})
+	call dein#load_toml(g:init_lazy_plugins, {'lazy': 1})
 	" 設定終了
 	call dein#end()
 	call dein#save_state()
