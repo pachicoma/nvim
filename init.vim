@@ -14,6 +14,9 @@ if s:is_windows
 	else
 		let s:nvim_config_dir = substitute(expand($XDG_CONFIG_HOME) . '/nvim/', '\', '/', 'g')
 	endif
+	set shellslash
+	set fileencoding=utf-8
+	set fileencodings=iso-2022-jp,utf-8,euc-jp,cp932
 else
 	let s:nvim_config_dir = expand($XDG_CONFIG_HOME) . '/nvim/'
 endif
@@ -274,7 +277,7 @@ noremap <expr> <C-u> max([winheight(0) - 2, 1])
 " 編集
 "-----------------------
 " 改行
-inoremap <C-j> <CR>
+"inoremap <C-j> <CR>
 " インデント
 nnoremap < <<
 nnoremap > >>
@@ -291,7 +294,6 @@ vnoremap <Leader>y "*y
 nnoremap <Leader>p "*p
 vnoremap <Leader>p "*p
 nnoremap <Leader>Y "*y$
-nnoremap Y y$
 " コピペしたらテキストの末尾へ移動
 vnoremap <silent> y y`]
 vnoremap <silent> p p`]
@@ -314,7 +316,7 @@ nnoremap <C-c>R *``cgN
 nnoremap <C-e>r yiw:<C-u>%s/<C-R>"//gc<Left><Left><Left>
 " ビジュアルモードで選択中の文字を置換対象にする(*1)
 vnoremap <C-e>r y:<C-u>%s/<C-R>"//gc<Left><Left><Left>
-" 
+" .コマンドで繰り返し可能な置換
 vnoremap <expr> cn "y/\\V\<C-r>=escape(@\", '/')\<CR>\<CR>" . "``cgn"
 vnoremap <expr> cN "y/\\V\<C-r>=escape(@\", '/')\<CR>\<CR>" . "``cgN"
 

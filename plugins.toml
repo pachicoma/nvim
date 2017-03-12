@@ -6,8 +6,7 @@ repo = 'vim-jp/vimdoc-ja'
 
 [[plugins]]
 repo = 'neomake/neomake'
-hook_add = '''
-  autocmd! BufWritePost * Neomake
+hook_add = ''' autocmd! BufWritePost * Neomake
 '''
 
 [[plugins]]
@@ -67,8 +66,7 @@ let g:undotree_SplitWidth = 30			" undotreeのウィンドウ幅
 let g:undotree_SetFocusWhenToggle = 1   " undotreeを開いたらフォーカスする
 "let g:undotree_DiffAutoOpen = 0         " diffウィンドウは起動時無効
 let g:undotree_DiffpanelHeight = 8		" diffウィンドウの行数
-"let g:undotree_HighlightChangedText = 0 " 変更箇所のハイライト無効
-" undotreeをトグル表示
+"let g:undotree_HighlightChangedText = 0 " 変更箇所のハイライト無効 " undotreeをトグル表示
 noremap <Leader>u :UndotreeToggle<CR>
 
 " undotreeバッファ内でのキーバインド設定
@@ -104,31 +102,4 @@ let g:SignatureMap = {
 	\ 'ListBufferMarkers'  :  "m?"
 	\ }
 '''
-
-[[plugins]]
-repo = 'tpope/vim-fugitive'
-hook_add = '''
-nmap <Leader>gb :<C-u>Gblame<CR>
-nmap <Leader>gd :<C-u>Gdiff<CR>
-nmap <Leader>gs :<C-u>Gstatus<CR>
-nmap <Leader>gg :<C-u>Ggrep<CR>
-nmap <Leader>gr :<C-u>Gread<CR>
-nmap <Leader>ge :<C-u>Gedit<CR>
-'''
-
-[[plugins]]
-repo = 'mhinz/vim-grepper'
-hook_add = '''
-runtime autoload/grepper.vim  " initialize g:grepper with default values
-" ハイライト有効
-"let g:grepper.highlight = 1
-let g:grepper.side = 1
-let g:grepper.dir = 'cwd'
-let g:grepper.tools = ['rg', 'ag', 'grep', 'findstr']
-let g:grepper.stop = 5000
-" キーバインド
-nnoremap <Leader>gj :Grepper -cword<CR>
-nnoremap <Leader>gk :Grepper<CR>
-'''
-
 
