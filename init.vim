@@ -61,9 +61,6 @@ set gdefault			" 検索時は/gオプション付がデフォルト
 set ignorecase			" 大文字・小文字区別無しで検索
 set smartcase			" 検索パターンが大文字を含んでいたら区別する
 set wrapscan			" バッファ末尾まで検索したらバッファ先頭から検索する
-if has('migemo')		" migemoがあれば有効にする
-	set migemo
-endif
 
 " Grep
 "-----------------------
@@ -140,10 +137,11 @@ set shiftwidth=4		" autoindentや<<,>>でのインデント量
 set shiftround			" インデント量をshiftwidthの倍数で丸める
 set formatoptions=q		" 自動フォーマット
 
-" タブ操作
+" タブ/ウィンドウ操作
 "-----------------------
 set splitbelow			" 上下に分割するとき、新しいウィンドウは下に作る
-set splitright			" 左右に分割するとき、新しいウィンドウは右に作る 
+set splitright			" 左右に分割するとき、新しいウィンドウは右に作る
+
 
 " セッション
 "-----------------------
@@ -157,7 +155,7 @@ inoremap <ESC> <ESC>:set iminsert=0<CR>
 
 " 補完メニュー
 "-----------------------
-set pumheight=10
+set pumheight=20
 
 "--------------------------------------------------
 " ファイルオープン時のアクション
